@@ -1,0 +1,93 @@
+name: Build and release
+
+on:
+  push:
+    branches: ['26.3']
+  pull_request:
+    branches: ['26.3']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Java 25
+        uses: actions/setup-java@v6.2.0
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6.4.1
+      - name: Build all modules and package installable mods
+        run: ./gradlew --no-daemon build :fabric:shadowJar :neoforge:shadowJar
+      - name: Collect installable JARs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for loader in fabric neoforge; do
+            mapfile -t jars < <(find "$loader/build/libs" -maxdepth 1 -type f -name '*.jar' ! -name '*-raw.jar' ! -name '*-sources.jar' ! -name '*-dev*.jar')
+            if [[ ${#jars[@]} -ne 1 ]]; then
+              printf 'Expected one installable JAR for %s, found %s\n' "$loader" "${#jars[@]}" >&2
+              exit 1
+            fi
+            cp "${jars[0]}" dist/
+          done
+          (cd dist && sha256sum *.jar > SHA256SUMS.txt)
+      - name: Upload mod JARs
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: dcintegration-mc26.3
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/26.3' && github.repository == 'liwwyy/DiscordIntegration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download mod JARs
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: dcintegration-mc26.3
+          path: dist
+      - name: Publish automatic prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="mc26.3-build-${RUN_NUMBER}-${RUN_ATTEMPT}"
+          cat > release-notes.md <<EOF_NOTES
+          Automatic Minecraft 26.3 build from commit ${COMMIT}.
+
+          Download the JAR for your server's loader: Fabric or NeoForge.
+          These are development prereleases; a successful build does not imply in-game testing.
+
+          Workflow: ${RUN_URL}
+          SHA-256 checksums are included in SHA256SUMS.txt.
+          EOF_NOTES
+          gh release create "$tag" dist/* \
+            --target "$COMMIT" \
+            --title "Minecraft 26.3 — build ${RUN_NUMBER}.${RUN_ATTEMPT}" \
+            --notes-file release-notes.md \
+            --prerelease
