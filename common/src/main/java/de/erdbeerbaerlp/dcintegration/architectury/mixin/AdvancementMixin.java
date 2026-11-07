@@ -1,5 +1,7 @@
 package de.erdbeerbaerlp.dcintegration.architectury.mixin;
 
+import de.erdbeerbaerlp.dcintegration.architectury.webhook.PlayerWebhookIntegration;
+
 import de.erdbeerbaerlp.dcintegration.architectury.util.MessageUtilsImpl;
 import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
 import de.erdbeerbaerlp.dcintegration.common.storage.Configuration;
@@ -57,7 +59,7 @@ public class AdvancementMixin {
                                 .replace("%avatarURL%", avatarURL)
                                 .replace("%playerColor%", "" + TextColors.generateFromUUID(player.getUUID()).getRGB())
                         );
-                        DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.advancementChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.advancementChannelID));
                     } else {
                         EmbedBuilder b = Configuration.instance().embedMode.advancementMessage.toEmbed();
                         b = b.setAuthor(MessageUtilsImpl.formatPlayerName(player), null, avatarURL)
@@ -77,10 +79,10 @@ public class AdvancementMixin {
                                         .replace("%advNameURL%", URLEncoder.encode(ChatFormatting.stripFormatting(advancement.display().get().title().getString()), StandardCharsets.UTF_8))
                                         .replace("%advDescURL%", URLEncoder.encode(ChatFormatting.stripFormatting(advancement.display().get().description().getString()), StandardCharsets.UTF_8))
                                 );
-                        DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.advancementChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.advancementChannelID));
                     }
                 } else
-                    DiscordIntegration.INSTANCE.sendMessage(Localization.instance().advancementMessage.replace("%player%",
+                    PlayerWebhookIntegration.sendPlayerEvent(player, Localization.instance().advancementMessage.replace("%player%",
                                     ChatFormatting.stripFormatting(MessageUtilsImpl.formatPlayerName(player)))
                             .replace("%advName%",
                                     ChatFormatting.stripFormatting(advancement

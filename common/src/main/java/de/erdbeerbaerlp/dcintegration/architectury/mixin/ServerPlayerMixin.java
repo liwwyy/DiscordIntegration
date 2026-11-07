@@ -1,5 +1,7 @@
 package de.erdbeerbaerlp.dcintegration.architectury.mixin;
 
+import de.erdbeerbaerlp.dcintegration.architectury.webhook.PlayerWebhookIntegration;
+
 import de.erdbeerbaerlp.dcintegration.architectury.util.MessageUtilsImpl;
 import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
 import de.erdbeerbaerlp.dcintegration.common.storage.Configuration;
@@ -50,7 +52,7 @@ public class ServerPlayerMixin {
                             b.addBlankField(false);
                             b.addField(embed.getTitle() + " *(" + embed.getFooter().getText() + ")*", embed.getDescription(), false);
                         }
-                        DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.deathsChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(p, new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.deathsChannelID));
                     }else {
                         final EmbedBuilder b = Configuration.instance().embedMode.deathMessage.toEmbed();
                         b.setDescription(":skull: " + Localization.instance().playerDeath.replace("%player%", MessageUtilsImpl.formatPlayerName(p)).replace("%msg%", ChatFormatting.stripFormatting(deathMessage.getString()).replace(MessageUtilsImpl.formatPlayerName(p) + " ", "")));
@@ -58,10 +60,10 @@ public class ServerPlayerMixin {
                             b.addBlankField(false);
                             b.addField(embed.getTitle() + " *(" + embed.getFooter().getText() + ")*", embed.getDescription(), false);
                         }
-                        DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(b.build()), DiscordIntegration.INSTANCE.getChannel(Configuration.instance().advanced.deathsChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(p, new DiscordMessage(b.build()), DiscordIntegration.INSTANCE.getChannel(Configuration.instance().advanced.deathsChannelID));
                     }
                 } else
-                    DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(embed, Localization.instance().playerDeath.replace("%player%", MessageUtilsImpl.formatPlayerName(p)).replace("%msg%",  ChatFormatting.stripFormatting(deathMessage.getString()).replace(MessageUtilsImpl.formatPlayerName(p) + " ", ""))), DiscordIntegration.INSTANCE.getChannel(Configuration.instance().advanced.deathsChannelID));
+                    PlayerWebhookIntegration.sendPlayerEvent(p, new DiscordMessage(embed, Localization.instance().playerDeath.replace("%player%", MessageUtilsImpl.formatPlayerName(p)).replace("%msg%",  ChatFormatting.stripFormatting(deathMessage.getString()).replace(MessageUtilsImpl.formatPlayerName(p) + " ", ""))), DiscordIntegration.INSTANCE.getChannel(Configuration.instance().advanced.deathsChannelID));
         }
     }
 }

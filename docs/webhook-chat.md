@@ -2,8 +2,9 @@
 
 Player chat can appear as messages authored by individual Minecraft players, using
 plain Discord webhook `content`. Chat embeds, item embeds, and automatic URL previews
-are suppressed for this path. Join/leave/death/advancement/start/stop messages use the
-existing server webhook name/avatar and retain the existing event embed settings.
+are suppressed for this path. Player-associated events keep the server webhook name/avatar and show player heads
+in embed authors. Start/stop messages also keep the server identity. Event embed
+settings remain available.
 
 ## Enable
 
@@ -27,7 +28,7 @@ companion file are loaded on the next outgoing player message; invalid edits ret
 the last valid settings and log an error. Main config changes use the existing reload
 command. A restart picks up a changed managed `webhookName`.
 
-The defaults use the Minecraft display name, Minecraft skin face, and, for linked
+The defaults use the Minecraft display name, Crafthead skin head, and, for linked
 guild members, an affix: `Steve (discorduser)`. Unlinked users keep `Steve`.
 
 ## Identity and avatar settings
@@ -36,7 +37,7 @@ These keys are at the **top level** of `Discord-Integration-Webhooks.toml`:
 
 ```toml
 playerChat = true
-avatarUrl = "https://crafatar.com/avatars/{uuid}?size={size}&overlay"
+avatarUrl = "https://crafthead.net/helm/{username}/{size}#%randomUUID%"
 avatarSize = 128
 useLinkedDiscordAvatar = false
 useLinkedDiscordName = false
@@ -55,8 +56,9 @@ allowEveryoneMentions = false
   restores normal bot delivery. A blank `discordChatMessage` in Messages.toml still
   disables outgoing chat. Permission checks, addon cancellation, vanish detection,
   linked-player `hideFromDiscord`, and character blacklists still apply.
-- `avatarUrl = ""` (the default) inherits the existing `webhook.playerAvatarURL` and
-  its tested fallback URL. Setting a URL here overrides that avatar selection.
+- `avatarUrl` defaults to a Crafthead username head URL with a random UUID fragment.
+  An empty value inherits the core URL, normalized to Crafthead. Only Crafthead URLs are
+  used for Minecraft skins; linked Discord avatars remain independently configurable.
 - URL placeholders: `{username}` is the account name, `{uuid}` is the dashed UUID,
   `{uuid-nodashes}` removes dashes, `{texture}` is the skin texture hash, and `{size}`
   is `avatarSize` (16–512). Existing `%name%`, `%uuid%`, `%uuid_dashless%`, and
@@ -148,7 +150,8 @@ showDisconnectReason = true
 disconnectMessage = "%player% disconnected: %reason%"
 ```
 
-Normal departures still use `playerLeave` from Messages.toml (`Steve left.`).
+Normal departures show `Steve left the server` while the toggle is enabled, and use
+`playerLeave` from Messages.toml when disabled.
 Timeouts are detected by Minecraft's translation key and use `playerTimeout`
 (`Steve timed out.`), even if the reason component has styling. Other disconnects
 and kicks use `disconnectMessage`, for example `Steve disconnected: Kicked for inactivity`.
@@ -158,5 +161,23 @@ Set `showDisconnectReason = false` to restore normal leave text for kicks/errors
 timeouts retain their existing dedicated message. These options also work in bot
 mode. Existing hidden/vanished-player and server-stop suppression still apply.
 With leave embeds enabled, special disconnects replace the embed description with
-the selected message, including in custom JSON embeds. Normal departures preserve
-the custom embed unchanged. The webhook sender remains the configured server identity.
+the selected message, including in custom JSON embeds. The webhook sender remains the configured server identity.
+
+## Player event icons and skin providers (3.2.6)
+
+Player-associated event messages retain the configured server sender name and avatar.
+Their embeds show the player's Crafthead head in `author.icon_url`; standard event text
+is placed in `author.name` without a duplicate description. Plain event messages keep
+the server identity. Player chat continues to use the player's head as the webhook
+sender avatar, with optional linked Discord avatars.
+
+All Minecraft skin paths now use Crafthead, including the shared core's periodic avatar
+check and fallback provider. Existing non-Crafthead URLs are normalized at runtime, so
+saved configs cannot silently retain Minotar, Crafatar, or Starlight. Crafthead path
+customization remains available through `avatarUrl`, for example:
+`https://crafthead.net/helm/{username}/{size}#%randomUUID%`.
+
+With `showDisconnectReason = true`, a normal departure says `Steve left the server`.
+Generic reasons containing `Disconnected` are recognized as normal. Timeouts and
+meaningful kick/error reasons keep their dedicated messages. Turning the setting off
+preserves the localized leave text.

@@ -1,5 +1,7 @@
 package de.erdbeerbaerlp.dcintegration.architectury.mixin;
 
+import de.erdbeerbaerlp.dcintegration.architectury.webhook.PlayerWebhookIntegration;
+
 import dcshadow.net.kyori.adventure.text.Component;
 import dcshadow.net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import de.erdbeerbaerlp.dcintegration.architectury.util.MessageUtilsImpl;
@@ -87,15 +89,15 @@ public class PlayerManagerMixin {
                                 .replace("%avatarURL%", avatarURL)
                                 .replace("%playerColor%", "" + TextColors.generateFromUUID(p.getUUID()).getRGB())
                         );
-                        DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(b.build()));
+                        PlayerWebhookIntegration.sendPlayerEvent(p, new DiscordMessage(b.build()));
                     } else {
                         final EmbedBuilder b = Configuration.instance().embedMode.playerJoinMessage.toEmbed();
                         b.setAuthor(MessageUtilsImpl.formatPlayerName(p), null, avatarURL)
                                 .setDescription(Localization.instance().playerJoin.replace("%player%", MessageUtilsImpl.formatPlayerName(p)));
-                        DiscordIntegration.INSTANCE.sendMessage(new DiscordMessage(b.build()), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(p, new DiscordMessage(b.build()), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
                     }
                 } else
-                    DiscordIntegration.INSTANCE.sendMessage(Localization.instance().playerJoin.replace("%player%", MessageUtilsImpl.formatPlayerName(p)), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                    PlayerWebhookIntegration.sendPlayerEvent(p, Localization.instance().playerJoin.replace("%player%", MessageUtilsImpl.formatPlayerName(p)), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
             }
             // Fix link status (if user does not have role, give the role to the user, or vice versa)
             WorkThread.executeJob(() -> {

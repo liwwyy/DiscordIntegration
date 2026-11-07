@@ -13,6 +13,23 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WebhookTextTest {
+    @Test void eventHeadRemainsInEmbedAuthorWithFullEventText() {
+        var embed = new net.dv8tion.jda.api.EmbedBuilder().setAuthor("Steve", null, "https://old.example/head")
+                .setDescription("Steve left the server").build();
+        var input = new net.dv8tion.jda.api.utils.messages.MessageCreateBuilder().setEmbeds(embed).build();
+        var event = WebhookMessages.playerEvent(input, "Steve", "https://crafthead.net/avatar/test");
+        assertEquals("https://crafthead.net/avatar/test", event.getEmbeds().getFirst().getAuthor().getIconUrl());
+        assertEquals("Steve left the server", event.getEmbeds().getFirst().getAuthor().getName());
+        assertNull(event.getEmbeds().getFirst().getDescription());
+    }
+
+    @Test void allLegacySkinProvidersResolveToCrafthead() {
+        assertEquals(SkinAvatars.DEFAULT, SkinAvatars.template("https://crafatar.com/avatars/{uuid}"));
+        assertEquals(SkinAvatars.DEFAULT, SkinAvatars.template("https://minotar.net/avatar/{uuid}"));
+        assertEquals(SkinAvatars.DEFAULT, SkinAvatars.template("https://crafthead.net.evil.example/avatar/{uuid}"));
+        assertEquals("https://crafthead.net/helm/{uuid}/{size}", SkinAvatars.template("https://crafthead.net/helm/{uuid}/{size}"));
+    }
+
     @Test void linkedAffixAndNameAreIndependentOptions() {
         var settings = new WebhookSettings();
         assertEquals("Steve (linkeduser)", WebhookText.name("Steve", "Guild Nick", "linkeduser", settings));

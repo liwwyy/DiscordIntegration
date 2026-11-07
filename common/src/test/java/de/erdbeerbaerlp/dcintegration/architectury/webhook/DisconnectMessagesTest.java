@@ -9,9 +9,10 @@ class DisconnectMessagesTest {
         return DisconnectMessages.format(key, reason, "Steve", "%player% left.", "%player% timed out.", settings);
     }
     @Test void normalLeaveKeepsExistingLocalization() {
-        assertEquals("Steve left.", format("disconnect.disconnected", "Disconnected"));
-        assertEquals("Steve left.", format("disconnect.endOfStream", "End of stream"));
-        assertEquals("Steve left.", format("", "Disconnected"));
+        assertEquals("Steve left the server", format("disconnect.disconnected", "Disconnected"));
+        assertEquals("Steve left the server", format("disconnect.endOfStream", "End of stream"));
+        assertEquals("Steve left the server", format("", "Disconnected"));
+        assertEquals("Steve left the server", format("disconnect.genericReason", "Disconnected"));
     }
     @Test void timeoutUsesTranslationKeyInsteadOfRenderedOrStyledText() {
         assertEquals("Steve timed out.", format("disconnect.timeout", "Délai dépassé"));

@@ -1,35 +1,34 @@
-# Discord-Integration
-![Modrinth Downloads](https://img.shields.io/modrinth/dt/dcintegration?style=flat&logo=modrinth)
+# Discord Integration — Minecraft 26.3
 
-This mod links your server chat with a channel on your discord server.
+Connect Minecraft server chat to Discord. This fork supports **Fabric and NeoForge**.
 
-Wiki: https://wiki.erdbeerbaerlp.de/dcintegration:root
+## Added features
 
-[![Discord Server](https://discordapp.com/api/guilds/881880836377546824/widget.png?style=banner2)](https://erd.wtf/discord)
+- DiscordSRV-style player chat: plain webhook messages with player names and Crafthead skin heads.
+- Optional linked Discord names/avatars and a configurable `Minecraft name (Discord username)` affix.
+- Player event embeds show the player's head beside the event text, while the sender keeps the server's name/avatar.
+- Normal departures say `Player left the server`; timeouts and kicks show specific reasons, with a toggle.
+- Configurable regex filters, mention/emote translation, and automatic recovery for deleted webhooks.
+- Automatic GitHub builds and prereleases containing both loader JARs and checksums.
 
+## Setup
 
-This Repository contains the NeoForge, Forge, and Fabric builds
+Enable `webhook.enable` in `config/Discord-Integration.toml`.
+Additional options live in `config/Discord-Integration-Webhooks.toml`.
+All Minecraft skin providers use Crafthead, including saved provider URLs and fallbacks.
 
-## Building this fork
+[Configuration guide](docs/webhook-chat.md) · [Downloads](https://github.com/liwwyy/DiscordIntegration/releases) · [Upstream wiki](https://wiki.erdbeerbaerlp.de/dcintegration:root)
 
-Use Java 25 and the included Gradle wrapper:
+## Build
+
+Requires Java 25:
 
 ```sh
 ./gradlew build :fabric:shadowJar :neoforge:shadowJar
 ```
 
-Installable JARs are written to `fabric/build/libs/` and `neoforge/build/libs/`.
-Choose the JAR without a `-raw`, `-dev`, or `-sources` suffix.
+JARs appear in `fabric/build/libs/` and `neoforge/build/libs/`.
+Use the JAR without a `-raw`, `-dev`, or `-sources` suffix.
 
-GitHub Actions builds every push and pull request targeting `26.3`. Each successful
-push to `26.3` in this fork automatically publishes a GitHub prerelease with both
-loader JARs and SHA-256 checksums. You can also run **Build and release** manually
-on `26.3`. Pull requests only build and upload workflow artifacts.
-
-Downloads: https://github.com/liwwyy/DiscordIntegration/releases
-
-## Player webhook chat
-
-This fork supports DiscordSRV-style player names/skin heads, optional linked Discord
-identities, and a configurable `Minecraft name (Discord username)` affix. Server events
-keep the configured server webhook identity. See [setup and configuration](docs/webhook-chat.md).
+Forked from [meowora/DiscordIntegration](https://github.com/meowora/DiscordIntegration),
+based on [ErdbeerbaerLP/DiscordIntegration](https://github.com/ErdbeerbaerLP/DiscordIntegration).

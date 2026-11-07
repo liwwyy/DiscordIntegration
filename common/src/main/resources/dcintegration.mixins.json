@@ -10,7 +10,8 @@
     "PlayerManagerMixin",
     "ChatMixin",
     "CommandManagerMixin",
-    "MixinMinecraftServer"
+    "MixinMinecraftServer",
+    "SkinProviderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

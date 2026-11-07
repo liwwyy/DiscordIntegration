@@ -42,6 +42,17 @@ public final class PlayerWebhookIntegration extends DiscordIntegration {
         SETTINGS.get();
     }
 
+    @Override
+    public void startThreads() {
+        SkinAvatars.normalizeCoreConfig();
+        super.startThreads();
+    }
+
+    @Override
+    public String getSkinURL() {
+        return SkinAvatars.template(Configuration.instance().webhook.playerAvatarURL);
+    }
+
     public static WebhookSettings settings() {
         return SETTINGS.get();
     }
@@ -55,7 +66,7 @@ public final class PlayerWebhookIntegration extends DiscordIntegration {
         WebhookSettings settings = SETTINGS.get();
         String displayName = MessageUtilsImpl.formatPlayerName(player);
         UUID uuid = player.getUUID();
-        String template = settings.avatarUrl.isBlank() ? getSkinURL() : settings.avatarUrl;
+        String template = SkinAvatars.template(settings.avatarUrl.isBlank() ? getSkinURL() : settings.avatarUrl);
         String avatar = WebhookText.avatar(template, player.getGameProfile().name(), uuid, skinTexture(player), settings.avatarSize);
         PlayerLink link = Configuration.instance().linking.enableLinking ? LinkManager.getLink(null, uuid) : null;
         String discordId = link == null || (settings.respectLinkedPlayerSettings && !link.settings.useDiscordNameInChannel)
@@ -78,6 +89,31 @@ public final class PlayerWebhookIntegration extends DiscordIntegration {
             List<MessageCreateData> messages = WebhookMessages.player(translated, settings);
             return new Payload(messages, name, icon, threadId(channel), uuid);
         }));
+    }
+
+    public static void sendPlayerEvent(ServerPlayer player, String text, GuildMessageChannel channel) {
+        sendPlayerEvent(player, new DiscordMessage(text), channel);
+    }
+
+    public static void sendPlayerEvent(ServerPlayer player, DiscordMessage message) {
+        sendPlayerEvent(player, message, INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+    }
+
+    public static void sendPlayerEvent(ServerPlayer player, DiscordMessage message, GuildMessageChannel channel) {
+        if (!(INSTANCE instanceof PlayerWebhookIntegration integration) || !Configuration.instance().webhook.enable) {
+            if (INSTANCE != null) INSTANCE.sendMessage(message, channel);
+            return;
+        }
+        if (channel == null || integration.getJDA() == null) return;
+        var settings = SETTINGS.get();
+        UUID uuid = player.getUUID();
+        String template = SkinAvatars.template(settings.avatarUrl.isBlank() ? integration.getSkinURL() : settings.avatarUrl);
+        String avatar = WebhookText.avatar(template, player.getGameProfile().name(), uuid, skinTexture(player), settings.avatarSize);
+        String name = WebhookText.username(Configuration.instance().webhook.serverName, "Minecraft Server", new WebhookSettings());
+        String playerName = MessageUtilsImpl.formatPlayerName(player);
+        String serverAvatar = Configuration.instance().webhook.serverAvatarURL;
+        integration.enqueue(channel, () -> CompletableFuture.completedFuture(new Payload(
+                List.of(WebhookMessages.playerEvent(message.buildMessages(), playerName, avatar)), name, serverAvatar, threadId(channel), uuid)));
     }
 
     /** All legacy event sends converge here; never borrow the last player's per-message identity. */

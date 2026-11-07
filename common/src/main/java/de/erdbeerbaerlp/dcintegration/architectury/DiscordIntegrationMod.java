@@ -206,14 +206,14 @@ public final class DiscordIntegrationMod {
                                     .replace("%avatarURL%", avatarURL)
                                     .replace("%playerColor%", "" + TextColors.generateFromUUID(player.getUUID()).getRGB())
                             );
-                            INSTANCE.sendMessage(new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                            PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
                         } else {
                             final EmbedBuilder b = Configuration.instance().embedMode.playerLeaveMessages.toEmbed().setAuthor(MessageUtilsImpl.formatPlayerName(player), null, avatarURL)
                                     .setDescription(Localization.instance().playerLeave.replace("%player%", MessageUtilsImpl.formatPlayerName(player)));
-                            INSTANCE.sendMessage(new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                            PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(b.build()),INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
                         }
                     } else
-                        INSTANCE.sendMessage(Localization.instance().playerLeave.replace("%player%", MessageUtilsImpl.formatPlayerName(player)),INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(player, Localization.instance().playerLeave.replace("%player%", MessageUtilsImpl.formatPlayerName(player)),INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
                 }
             }
         }else{
@@ -231,15 +231,15 @@ public final class DiscordIntegrationMod {
                                 .replace("%avatarURL%", avatarURL)
                                 .replace("%playerColor%", "" + TextColors.generateFromUUID(player.getUUID()).getRGB())
                         );
-                        INSTANCE.sendMessage(new DiscordMessage(b.build()));
+                        PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(b.build()));
                     } else {
                         final EmbedBuilder b = Configuration.instance().embedMode.playerJoinMessage.toEmbed();
                         b.setAuthor(MessageUtilsImpl.formatPlayerName(player), null, avatarURL)
                                 .setDescription(Localization.instance().playerJoin.replace("%player%", MessageUtilsImpl.formatPlayerName(player)));
-                        INSTANCE.sendMessage(new DiscordMessage(b.build()), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                        PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(b.build()), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
                     }
                 } else
-                    INSTANCE.sendMessage(Localization.instance().playerJoin.replace("%player%", MessageUtilsImpl.formatPlayerName(player)), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+                    PlayerWebhookIntegration.sendPlayerEvent(player, Localization.instance().playerJoin.replace("%player%", MessageUtilsImpl.formatPlayerName(player)), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
             }
         }
     }

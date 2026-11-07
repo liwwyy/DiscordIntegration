@@ -63,15 +63,15 @@ public class NetworkHandlerMixin {
                         .replace("%avatarURL%", avatarURL)
                         .replace("%playerColor%", "" + TextColors.generateFromUUID(player.getUUID()).getRGB()));
                 // A custom embed may hard-code "left"; override its description for special disconnects.
-                if (DisconnectMessages.isTimeout(reasonKey) || (settings.showDisconnectReason && !DisconnectMessages.isNormal(reasonKey, reason.getString())))
+                if (DisconnectMessages.isTimeout(reasonKey) || settings.showDisconnectReason)
                     builder.setDescription(leaveMessage);
             } else {
                 builder = Configuration.instance().embedMode.playerLeaveMessages.toEmbed()
                         .setAuthor(playerName, null, avatarURL).setDescription(leaveMessage);
             }
-            INSTANCE.sendMessage(new DiscordMessage(builder.build()), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+            PlayerWebhookIntegration.sendPlayerEvent(player, new DiscordMessage(builder.build()), INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
         } else {
-            INSTANCE.sendMessage(leaveMessage, INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
+            PlayerWebhookIntegration.sendPlayerEvent(player, leaveMessage, INSTANCE.getChannel(Configuration.instance().advanced.serverChannelID));
         }
     }
 }

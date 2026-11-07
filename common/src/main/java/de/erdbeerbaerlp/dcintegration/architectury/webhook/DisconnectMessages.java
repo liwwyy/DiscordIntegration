@@ -11,11 +11,13 @@ public final class DisconnectMessages {
     public static boolean isNormal(String key, String reason) {
         // A normal client quit closes the TCP channel and reaches channelInactive as endOfStream.
         return "disconnect.endOfStream".equals(key) || "disconnect.disconnected".equals(key) || "disconnect.quitting".equals(key)
-                || (key.isEmpty() && (reason.isBlank() || reason.equalsIgnoreCase("Disconnected")));
+                || WebhookText.strip(reason).strip().equalsIgnoreCase("Disconnected") || (key.isEmpty() && reason.isBlank());
     }
 
     public static String format(String key, String reason, String player, String leave, String timeout, WebhookSettings settings) {
         String template = isTimeout(key) ? timeout : leave;
+        if (settings.showDisconnectReason && !isTimeout(key) && isNormal(key, reason) && !leave.isBlank())
+            template = "%player% left the server";
         if (settings.showDisconnectReason && !isTimeout(key) && !isNormal(key, reason) && !leave.isBlank()) {
             template = settings.disconnectMessage;
         }

@@ -1,6 +1,8 @@
 package de.erdbeerbaerlp.dcintegration.architectury.webhook;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -12,6 +14,23 @@ import java.util.function.Function;
 /** Player chat is always content-only, including when core chat embeds/item tooltips are enabled. */
 public final class WebhookMessages {
     private WebhookMessages() { }
+
+    /** Player event icons belong to embed authors; the webhook sender retains the server identity. */
+    public static MessageCreateData playerEvent(MessageCreateData message, String playerName, String head) {
+        List<MessageEmbed> embeds = new ArrayList<>();
+        for (MessageEmbed embed : message.getEmbeds()) {
+            var author = embed.getAuthor();
+            var builder = EmbedBuilder.fromData(embed.toData());
+            String name = author == null ? playerName : author.getName();
+            if ((author == null || playerName.equals(name)) && embed.getDescription() != null && !embed.getDescription().isBlank()) {
+                name = embed.getDescription();
+                builder.setDescription(null);
+            }
+            builder.setAuthor(name, author == null ? null : author.getUrl(), head);
+            embeds.add(builder.build());
+        }
+        return new MessageCreateBuilder().applyData(message).setEmbeds(embeds).build();
+    }
 
     /** A retry resumes at the first unacknowledged chunk, preserving already delivered chunks. */
     public static final class Batch {

@@ -15,14 +15,14 @@ import java.util.regex.Pattern;
 /** Companion config: the external core rewrites its own TOML and discards unknown keys. */
 public final class WebhookSettings {
     @TomlComment({"Requires webhook.enable=true in Discord-Integration.toml.",
-            "Overrides chat embeds only. Server events keep the core's serverName/serverAvatarURL and embed options."})
+            "Overrides chat embeds only. Player events keep the server sender identity and show Crafthead heads in embed authors."})
     public boolean playerChat = true;
     @TomlComment("Show kick/error reasons in leave messages. False restores normal leave messages (timeouts still use playerTimeout).")
     public boolean showDisconnectReason = true;
-    @TomlComment("Special disconnect message. Placeholders: %player%, %reason%. Normal leave and timeout use Messages.toml.")
+    @TomlComment("Special disconnect message. Placeholders: %player%, %reason%. Timeouts use Messages.toml; normal disconnects show a short notice.")
     public String disconnectMessage = "%player% disconnected: %reason%";
     @TomlComment("Empty uses the core's playerAvatarURL (including its tested fallback). Supports old %name%/%uuid% placeholders too.")
-    public String avatarUrl = "";
+    public String avatarUrl = "https://crafthead.net/helm/{username}/{size}#%randomUUID%";
     @TomlComment("Used for {size} in avatar URLs (16-512).")
     public int avatarSize = 128;
     public boolean useLinkedDiscordAvatar = false;
