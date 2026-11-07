@@ -53,3 +53,12 @@ publishing {
     }
 }
 tasks.release.dependsOn(tasks.build, tasks.publish)
+// Webhook queue/retry and formatting regression tests do not require a Minecraft server or Discord token.
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.14.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

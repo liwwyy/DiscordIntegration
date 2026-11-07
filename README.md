@@ -27,3 +27,9 @@ loader JARs and SHA-256 checksums. You can also run **Build and release** manual
 on `26.3`. Pull requests only build and upload workflow artifacts.
 
 Downloads: https://github.com/liwwyy/DiscordIntegration/releases
+
+## Player webhook chat
+
+This fork supports DiscordSRV-style player names/skin heads, optional linked Discord
+identities, and a configurable `Minecraft name (Discord username)` affix. Server events
+keep the configured server webhook identity. See [setup and configuration](docs/webhook-chat.md).
