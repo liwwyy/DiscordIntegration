@@ -136,3 +136,27 @@ For an end-to-end check with a test server and Discord channel:
 
 Behavior reference: [DiscordSRV webhook delivery](https://deepwiki.com/DiscordSRV/DiscordSRV).
 Discord API reference: [Execute Webhook](https://docs.discord.com/developers/resources/webhook#execute-webhook).
+
+## Disconnect and kick reasons
+
+Version 3.2.3 adds these top-level keys to `config/Discord-Integration-Webhooks.toml`.
+For an existing file, add them before any `[[usernameFilters]]` / `[[contentFilters]]`
+tables. Changes take effect on the next disconnect; no restart is needed.
+
+```toml
+showDisconnectReason = true
+disconnectMessage = "%player% disconnected: %reason%"
+```
+
+Normal departures still use `playerLeave` from Messages.toml (`Steve left.`).
+Timeouts are detected by Minecraft's translation key and use `playerTimeout`
+(`Steve timed out.`), even if the reason component has styling. Other disconnects
+and kicks use `disconnectMessage`, for example `Steve disconnected: Kicked for inactivity`.
+Minecraft formatting is stripped from the reason and Discord markdown is escaped.
+
+Set `showDisconnectReason = false` to restore normal leave text for kicks/errors;
+timeouts retain their existing dedicated message. These options also work in bot
+mode. Existing hidden/vanished-player and server-stop suppression still apply.
+With leave embeds enabled, special disconnects replace the embed description with
+the selected message, including in custom JSON embeds. Normal departures preserve
+the custom embed unchanged. The webhook sender remains the configured server identity.

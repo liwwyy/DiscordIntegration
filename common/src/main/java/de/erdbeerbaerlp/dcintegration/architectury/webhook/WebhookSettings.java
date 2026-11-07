@@ -17,6 +17,10 @@ public final class WebhookSettings {
     @TomlComment({"Requires webhook.enable=true in Discord-Integration.toml.",
             "Overrides chat embeds only. Server events keep the core's serverName/serverAvatarURL and embed options."})
     public boolean playerChat = true;
+    @TomlComment("Show kick/error reasons in leave messages. False restores normal leave messages (timeouts still use playerTimeout).")
+    public boolean showDisconnectReason = true;
+    @TomlComment("Special disconnect message. Placeholders: %player%, %reason%. Normal leave and timeout use Messages.toml.")
+    public String disconnectMessage = "%player% disconnected: %reason%";
     @TomlComment("Empty uses the core's playerAvatarURL (including its tested fallback). Supports old %name%/%uuid% placeholders too.")
     public String avatarUrl = "";
     @TomlComment("Used for {size} in avatar URLs (16-512).")
@@ -42,7 +46,7 @@ public final class WebhookSettings {
 
     public void validate() {
         if (avatarSize < 16 || avatarSize > 512) throw new IllegalArgumentException("avatarSize must be 16-512");
-        if (avatarUrl == null || discordAffix == null || usernameFilters == null || contentFilters == null)
+        if (disconnectMessage == null || avatarUrl == null || discordAffix == null || usernameFilters == null || contentFilters == null)
             throw new IllegalArgumentException("Webhook strings and filters cannot be null");
         if (!avatarUrl.isBlank() && !avatarUrl.startsWith("https://") && !avatarUrl.startsWith("http://"))
             throw new IllegalArgumentException("avatarUrl must be HTTP(S) or empty");

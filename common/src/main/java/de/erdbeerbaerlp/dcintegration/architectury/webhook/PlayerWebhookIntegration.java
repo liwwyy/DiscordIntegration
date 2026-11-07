@@ -42,6 +42,10 @@ public final class PlayerWebhookIntegration extends DiscordIntegration {
         SETTINGS.get();
     }
 
+    public static WebhookSettings settings() {
+        return SETTINGS.get();
+    }
+
     public static boolean usesPlayerWebhooks() {
         return Configuration.instance().webhook.enable && SETTINGS.get().playerChat;
     }
