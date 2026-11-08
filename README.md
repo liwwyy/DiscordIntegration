@@ -9,12 +9,14 @@ Connect Minecraft server chat to Discord. This fork supports **Fabric and NeoFor
 - Player event embeds show the player's head beside the event text, while the sender keeps the server's name/avatar.
 - Normal departures say `Player left the server`; timeouts and kicks show specific reasons, with a toggle.
 - Configurable regex filters, mention/emote translation, and automatic recovery for deleted webhooks.
+- Live chat/command-log channel topics with server stats and optional offline topics at shutdown.
 - Automatic GitHub builds and prereleases containing both loader JARs and checksums.
 
 ## Setup
 
 Enable `webhook.enable` in `config/Discord-Integration.toml`.
 Additional options live in `config/Discord-Integration-Webhooks.toml`.
+[Channel topic setup](docs/channel-topics.md) uses `config/Discord-Integration-Topics.toml`.
 All Minecraft skin providers use Crafthead, including saved provider URLs and fallbacks.
 
 [Configuration guide](docs/webhook-chat.md) · [Downloads](https://github.com/liwwyy/DiscordIntegration/releases) · [Upstream wiki](https://wiki.erdbeerbaerlp.de/dcintegration:root)

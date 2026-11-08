@@ -1,6 +1,7 @@
 package de.erdbeerbaerlp.dcintegration.architectury;
 
 import dcshadow.net.kyori.adventure.text.Component;
+import de.erdbeerbaerlp.dcintegration.architectury.topic.ChannelTopicUpdater;
 import de.erdbeerbaerlp.dcintegration.architectury.webhook.PlayerWebhookIntegration;
 import dcshadow.net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import de.erdbeerbaerlp.dcintegration.architectury.api.ArchitecturyDiscordEventHandler;
@@ -117,6 +118,7 @@ public final class DiscordIntegrationMod {
                 }
             DiscordIntegration.INSTANCE.startThreads();
         }
+        ChannelTopicUpdater.start(minecraftServer, INSTANCE);
         UpdateChecker.runUpdateCheck("https://raw.githubusercontent.com/ErdbeerbaerLP/DiscordIntegration/1.21.11/update-checker.json");
         if (!DownloadSourceChecker.checkDownloadSource(new File(DiscordIntegrationMod.class.getProtectionDomain().getCodeSource().getLocation().getPath().split("%")[0]))) {
             LOGGER.warn("You likely got this mod from a third party website.");
@@ -146,6 +148,7 @@ public final class DiscordIntegrationMod {
     }
 
     public static void serverStopping(MinecraftServer minecraftServer) {
+        ChannelTopicUpdater.shutdown();
         Metrics.MetricsBase.scheduler.shutdownNow();
         if (DiscordIntegration.INSTANCE != null) {
             if (!Localization.instance().serverStopped.isBlank())
@@ -163,6 +166,7 @@ public final class DiscordIntegrationMod {
     }
 
     public static void serverStopped(MinecraftServer minecraftServer) {
+        ChannelTopicUpdater.shutdown();
 
         Metrics.MetricsBase.scheduler.shutdownNow();
         if (DiscordIntegration.INSTANCE != null) {

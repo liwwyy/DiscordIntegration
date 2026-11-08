@@ -72,6 +72,7 @@ public class PlayerManagerMixin {
 
     @Inject(at = @At(value = "TAIL"), method = "placeNewPlayer")
     private void onPlayerJoin(Connection connection, ServerPlayer p, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
+        de.erdbeerbaerlp.dcintegration.architectury.topic.ChannelTopicUpdater.joined(p.getUUID());
         if (DiscordIntegration.INSTANCE != null) {
             if(INSTANCE.getServerInterface().isPlayerVanish(p.getUUID())) return;
             if (LinkManager.isPlayerLinked(p.getUUID()) && LinkManager.getLink(null, p.getUUID()).settings.hideFromDiscord)
